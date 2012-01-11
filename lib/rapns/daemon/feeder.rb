@@ -30,7 +30,11 @@ module Rapns
           with_database_reconnect_and_retry do
             if Rapns::Daemon.delivery_queue.notifications_processed?
               Rapns::Notification.ready_for_delivery.each do |notification|
-                Rapns::Daemon.delivery_queue.push(notification)
+                if notification.os == 'ios'
+                  Rapns::Daemon.delivery_queue.push(notification)
+                elsif notification.os == 'android'
+                  Rapns::Daemon.delivery_queue_c2dm.push(notification)
+                end
               end
             end
           end

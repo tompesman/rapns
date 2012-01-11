@@ -20,6 +20,12 @@ describe Rapns::Daemon, "when starting" do
         "port" => 123,
         "host" => "localhost",
         "poll" => 30,
+      },
+      "c2dm" => {
+        "auth" => "https://www.google.com/accounts/ClientLogin",
+        "push" => "https://android.apis.google.com/c2dm/send",
+        "email" => "email",
+        "password" => "password"
       }
     }
   end
@@ -71,7 +77,7 @@ describe Rapns::Daemon, "when starting" do
   end
 
   it "should initialize the delivery queue" do
-    Rapns::Daemon::DeliveryQueue.should_receive(:new)
+    Rapns::Daemon::DeliveryQueue.should_receive(:new).twice
     Rapns::Daemon.start("development", {})
   end
 
