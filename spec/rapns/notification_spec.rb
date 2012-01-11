@@ -4,9 +4,10 @@ describe Rapns::Notification do
   it { should validate_presence_of(:device_token) }
   it { should validate_numericality_of(:badge) }
   it { should validate_numericality_of(:expiry) }
+  it { should validate_presence_of(:os) }
 
   it "should validate the format of the device_token" do
-    notification = Rapns::Notification.new(:device_token => "{$%^&*()}")
+    notification = Rapns::Notification.new(:device_token => "{$%^&*()}", :os => "ios")
     notification.valid?.should be_false
     notification.errors[:device_token].include?("is invalid").should be_true
   end
@@ -15,6 +16,7 @@ describe Rapns::Notification do
     notification = Rapns::Notification.new
     notification.device_token = "a" * 64
     notification.alert = "way too long!" * 100
+    notification.os = "ios"
     notification.valid?.should be_false
     notification.errors[:base].include?("APN notification cannot be larger than 256 bytes. Try condensing your alert and device attributes.").should be_true
   end
@@ -110,6 +112,7 @@ describe Rapns::Notification, "to_binary" do
     notification.alert = "Don't panic Mr Mainwaring, don't panic!"
     notification.attributes_for_device = {:hi => :mom}
     notification.expiry = 86400 # 1 day, \x00\x01Q\x80
+    notification.os = "ios"
     notification.save!
     notification.stub(:id).and_return(1234)
     notification.to_binary.should == "\x01\x00\x00\x04\xD2\x00\x01Q\x80\x00 \xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\x00a{\"aps\":{\"alert\":\"Don't panic Mr Mainwaring, don't panic!\",\"badge\":3,\"sound\":\"1.aiff\"},\"hi\":\"mom\"}"

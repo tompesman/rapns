@@ -2,12 +2,19 @@ module Rapns
   class Notification < ActiveRecord::Base
     set_table_name "rapns_notifications"
 
+    OS = %w[ios android]
+
     validates :device_token, :presence => true
     validates :badge, :numericality => true, :allow_nil => true
     validates :expiry, :numericality => true, :presence => true
 
-    validates_with Rapns::DeviceTokenFormatValidator
-    validates_with Rapns::BinaryNotificationValidator
+    validates :collapse_key, :presence => true, :if => Proc.new { |a| a.os == "android" }
+
+    validates :os, :presence => true
+    validates :os, :inclusion => { :in => Rapns::Notification::OS, :message => "%{value} is not a valid os" }
+
+    validates_with Rapns::DeviceTokenFormatValidator, :if => Proc.new { |a| a.os == "ios" }
+    validates_with Rapns::BinaryNotificationValidator, :if => Proc.new { |a| a.os == "ios" }
 
     scope :ready_for_delivery, lambda { where(:delivered => false, :failed => false).merge(where("deliver_after IS NULL") | where("deliver_after < ?", Time.now)) }
 
@@ -53,6 +60,15 @@ module Rapns
       id_for_pack = options[:for_validation] ? 0 : id
       json = as_json.to_json
       [1, id_for_pack, expiry, 0, 32, device_token, 0, json.size, json].pack("cNNccH*cca*")
+    end
+
+    def to_android
+      {
+        :registration_id => device_token,
+        :message => alert,
+        :extra_data => attributes_for_device,
+        :collapse_key => collapse_key
+      }
     end
   end
 end
