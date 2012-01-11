@@ -4,7 +4,7 @@ describe Rapns::Daemon::DeliveryHandlerC2dm do
   let(:delivery_handler_c2dm) { Rapns::Daemon::DeliveryHandlerC2dm.new(0) }
 
   before do
-    @notification = Rapns::Notification.create!(:device_token => "a" * 64, :os => "android", :collapse_key => "key")
+    @notification = Rapns::NotificationC2dm.create!(:device_token => "a" * 64, :collapse_key => "key")
     Rapns::Daemon.stub(:delivery_queue_c2dm).and_return(Rapns::Daemon::DeliveryQueue.new)
     Rapns::Daemon.delivery_queue_c2dm.push(@notification)
 

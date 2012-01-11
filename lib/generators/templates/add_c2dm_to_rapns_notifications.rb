@@ -2,7 +2,7 @@ class AddC2dmToRapnsNotifications < ActiveRecord::Migration
   def self.up
     change_table :rapns_notifications do |t|
       t.string    :collapse_key,    :null => true
-      t.string    :os,              :null => false, :default => "ios"
+      t.string    :type,            :null => false, :default => "apns"
       t.boolean   :delay_when_idle, :null => false, :default => false
     end
 
@@ -12,11 +12,11 @@ class AddC2dmToRapnsNotifications < ActiveRecord::Migration
     change_column :rapns_notifications, :device_token, :string, :limit => 255
     # remove default value
     # can't add column to table with :null => false and no default, but you can change it afterwards
-    change_column :rapns_notifications, :os, :string, :null => false, :default => "NULL"
+    change_column :rapns_notifications, :type, :string, :null => false, :default => "NULL"
   end
 
   def self.down
-    remove_column :rapns_notifications, :os, :collapse_key, :delay_when_idle
+    remove_column :rapns_notifications, :type, :collapse_key, :delay_when_idle
     change_column :rapns_notifications, :device_token, :string, :limit => 64
   end
 end
