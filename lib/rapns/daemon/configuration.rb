@@ -5,7 +5,7 @@ module Rapns
 
   module Daemon
     class Configuration
-      attr_accessor :push, :feedback, :c2dm
+      attr_accessor :apns, :push, :feedback, :c2dm
       attr_accessor :certificate, :certificate_password, :airbrake_notify, :pid_file
       alias_method  :airbrake_notify?, :airbrake_notify
 
@@ -13,6 +13,7 @@ module Rapns
         @environment = environment
         @config_path = config_path
 
+        self.apns = Struct.new(:push, :feedback).new
         self.push = Struct.new(:host, :port, :connections, :poll).new
         self.feedback = Struct.new(:host, :port, :poll).new
         self.c2dm = Struct.new(:auth, :push, :email, :password).new
@@ -22,24 +23,28 @@ module Rapns
         config = read_config
         ensure_environment_configured(config)
         config = config[@environment]
-        set_variable(:push, :host, config)
-        set_variable(:push, :port, config)
-        set_variable(:push, :poll, config, :optional => true, :default => 2)
-        set_variable(:push, :connections, config, :optional => true, :default => 3)
+        set_variable(:push, :host, config["apns"])
+        set_variable(:push, :port, config["apns"])
+        set_variable(:push, :poll, config["apns"], :optional => true, :default => 2)
+        set_variable(:push, :connections, config["apns"], :optional => true, :default => 3)
 
-        set_variable(:feedback, :host, config)
-        set_variable(:feedback, :port, config)
-        set_variable(:feedback, :poll, config, :optional => true, :default => 60)
+        set_variable(:feedback, :host, config["apns"])
+        set_variable(:feedback, :port, config["apns"])
+        set_variable(:feedback, :poll, config["apns"], :optional => true, :default => 60)
 
-        set_variable(nil, :certificate, config)
+        set_variable(nil, :certificate, config["apns"])
+        set_variable(nil, :certificate_password, config["apns"], :optional => true, :default => "")
+
         set_variable(nil, :airbrake_notify, config, :optional => true, :default => true)
-        set_variable(nil, :certificate_password, config, :optional => true, :default => "")
         set_variable(nil, :pid_file, config, :optional => true, :default => "")
 
         set_variable(:c2dm, :auth, config)
         set_variable(:c2dm, :push, config)
         set_variable(:c2dm, :email, config)
         set_variable(:c2dm, :password, config)
+
+        self.apns.push = self.push
+        self.apns.feedback = self.feedback
       end
 
       def certificate

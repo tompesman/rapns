@@ -6,20 +6,22 @@ describe Rapns::Daemon, "when starting" do
 
   let(:config) do
     {
-      "airbrake_notify" => true,
-      "certificate" => "development.pem",
-      "certificate_password" => "abc123",
       "pid_file" => "rapns.pid",
-      "push" => {
-        "port" => 123,
-        "host" => "localhost",
-        "poll" => 4,
-        "connections" => 3
-      },
-      "feedback" => {
-        "port" => 123,
-        "host" => "localhost",
-        "poll" => 30,
+      "airbrake_notify" => true,
+      "apns" => {
+        "certificate" => "development.pem",
+        "certificate_password" => "abc123",
+        "push" => {
+          "port" => 123,
+          "host" => "localhost",
+          "poll" => 4,
+          "connections" => 3
+        },
+        "feedback" => {
+          "port" => 123,
+          "host" => "localhost",
+          "poll" => 30,
+        },
       },
       "c2dm" => {
         "auth" => "https://www.google.com/accounts/ClientLogin",

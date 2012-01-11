@@ -14,7 +14,7 @@ module Rapns
         loop do
           break if @stop
           enqueue_notifications
-          interruptible_sleep Rapns::Daemon.configuration.push.poll
+          interruptible_sleep Rapns::Daemon.configuration.apns.push.poll
         end
       end
 

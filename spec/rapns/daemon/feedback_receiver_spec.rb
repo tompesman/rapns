@@ -9,7 +9,7 @@ describe Rapns::Daemon::FeedbackReceiver, 'check_for_feedback' do
     Rapns::Daemon.logger = logger
     Rapns::Daemon::Connection.stub(:new => connection)
     Rapns::Feedback.stub(:create!)
-    Rapns::Daemon.configuration = stub(:feedback => stub(:host => 'feedback.push.apple.com', :port => 2196, :poll => 60))
+    Rapns::Daemon.configuration = stub(:apns => stub(:feedback => stub(:host => 'feedback.push.apple.com', :port => 2196, :poll => 60)))
     Rapns::Daemon::FeedbackReceiver.instance_variable_set("@stop", false)
   end
 
@@ -24,7 +24,7 @@ describe Rapns::Daemon::FeedbackReceiver, 'check_for_feedback' do
     end
   end
 
-  it 'instantiates a new connection' do  
+  it 'instantiates a new connection' do
     Rapns::Daemon::Connection.should_receive(:new).with("FeedbackReceiver", 'feedback.push.apple.com', 2196)
     Rapns::Daemon::FeedbackReceiver.check_for_feedback
   end

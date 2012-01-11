@@ -10,7 +10,7 @@ module Rapns
           loop do
             break if @stop
             check_for_feedback
-            interruptible_sleep Rapns::Daemon.configuration.feedback.poll
+            interruptible_sleep Rapns::Daemon.configuration.apns.feedback.poll
           end
         end
       end
@@ -24,8 +24,8 @@ module Rapns
       def self.check_for_feedback
         connection = nil
         begin
-          host = Rapns::Daemon.configuration.feedback.host
-          port = Rapns::Daemon.configuration.feedback.port
+          host = Rapns::Daemon.configuration.apns.feedback.host
+          port = Rapns::Daemon.configuration.apns.feedback.port
           connection = Connection.new("FeedbackReceiver", host, port)
           connection.connect
 

@@ -1,43 +1,46 @@
 development:
-  certificate: development.pem
-  certificate_password:
+  apns:
+    certificate: development.pem
+    certificate_password:
 
-  push:
-    host: gateway.sandbox.push.apple.com
-    port: 2195
-    poll: 2
-    connections: 3
+    push:
+      host: gateway.sandbox.push.apple.com
+      port: 2195
+      poll: 2
+      connections: 3
 
-  feedback:
-    host: feedback.sandbox.push.apple.com
-    port: 2196
-    poll: 60
+    feedback:
+      host: feedback.sandbox.push.apple.com
+      port: 2196
+      poll: 60
 
   c2dm:
     auth: https://www.google.com/accounts/ClientLogin
     push: https://android.apis.google.com/c2dm/send
-    email: <enter your email>
-    password: <enter your password>
+    email:
+    password:
 
 production:
-  certificate: production.pem
-  certificate_password:
-  airbrake_notify: true
   pid_file: tmp/pids/rapns.pid
+  airbrake_notify: true
 
-  push:
-    host: gateway.push.apple.com
-    port: 2195
-    poll: 2
-    connections: 3
+  apns:
+    certificate: production.pem
+    certificate_password:
 
-  feedback:
-    host: feedback.push.apple.com
-    port: 2196
-    poll: 60
+    push:
+      host: gateway.push.apple.com
+      port: 2195
+      poll: 2
+      connections: 3
+
+    feedback:
+      host: feedback.push.apple.com
+      port: 2196
+      poll: 60
 
   c2dm:
     auth: https://www.google.com/accounts/ClientLogin
     push: https://android.apis.google.com/c2dm/send
-    email: <enter your email>
-    password: <enter your password>
+    email:
+    password:

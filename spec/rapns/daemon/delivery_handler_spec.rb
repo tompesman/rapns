@@ -4,12 +4,12 @@ describe Rapns::Daemon::DeliveryHandler do
   let(:delivery_handler) { Rapns::Daemon::DeliveryHandler.new(0) }
 
   before do
-    @notification = Rapns::Notification.create!(:device_token => "a" * 64, :os => "ios")
+    @notification = Rapns::NotificationApns.create!(:device_token => "a" * 64)
     Rapns::Daemon.stub(:delivery_queue).and_return(Rapns::Daemon::DeliveryQueue.new)
     Rapns::Daemon.delivery_queue.push(@notification)
     @connection = mock("Connection", :connect => nil, :write => nil, :close => nil, :select => nil, :read => nil)
     Rapns::Daemon::Connection.stub(:new).and_return(@connection)
-    configuration = mock("Configuration", :push => stub(:host => "gateway.push.apple.com", :port => 2195), :c2dm => stub(:auth => "auth", :push => "push", :email => "email", :password => "password"))
+    configuration = mock("Configuration", :apns => stub(:push => stub(:host => "gateway.push.apple.com", :port => 2195)))
     Rapns::Daemon.stub(:configuration).and_return(configuration)
     @logger = mock("Logger", :error => nil, :info => nil)
     Rapns::Daemon.stub(:logger).and_return(@logger)

@@ -22,8 +22,8 @@ module Rapns
 
       def initialize(i)
         @name = "DeliveryHandler #{i}"
-        host = Rapns::Daemon.configuration.push.host
-        port = Rapns::Daemon.configuration.push.port
+        host = Rapns::Daemon.configuration.apns.push.host
+        port = Rapns::Daemon.configuration.apns.push.port
         @connection = Connection.new(@name, host, port)
       end
 

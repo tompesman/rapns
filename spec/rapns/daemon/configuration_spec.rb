@@ -7,19 +7,21 @@ describe Rapns::Daemon::Configuration do
   let(:config) do
     {
       "airbrake_notify" => false,
-      "certificate" => "production.pem",
-      "certificate_password" => "abc123",
       "pid_file" => "rapns.pid",
-      "push" => {
-        "port" => 123,
-        "host" => "localhost",
-        "poll" => 4,
-        "connections" => 6
-      },
-      "feedback" => {
-        "port" => 123,
-        "host" => "localhost",
-        "poll" => 30,
+      "apns" => {
+        "certificate" => "production.pem",
+        "certificate_password" => "abc123",
+        "push" => {
+          "port" => 123,
+          "host" => "localhost",
+          "poll" => 4,
+          "connections" => 6
+        },
+        "feedback" => {
+          "port" => 123,
+          "host" => "localhost",
+          "poll" => 30,
+        },
       },
       "c2dm" => {
         "auth" => "https://www.google.com/accounts/ClientLogin",
@@ -64,35 +66,36 @@ describe Rapns::Daemon::Configuration do
 
   it "should raise an error if the push host is not configured" do
     configuration = Rapns::Daemon::Configuration.new("production", "/some/config.yml")
-    config["push"]["host"] = nil
+    config["apns"]["push"]["host"] = nil
     configuration.stub(:read_config).and_return({"production" => config})
     expect { configuration.load }.to raise_error(Rapns::ConfigurationError, "'push.host' not defined for environment 'production' in /some/config.yml. You may need to run 'rails g rapns' after updating.")
   end
 
   it "should raise an error if the push port is not configured" do
     configuration = Rapns::Daemon::Configuration.new("production", "/some/config.yml")
-    config["push"]["port"] = nil
+    config["apns"]["push"]["port"] = nil
     configuration.stub(:read_config).and_return({"production" => config})
     expect { configuration.load }.to raise_error(Rapns::ConfigurationError, "'push.port' not defined for environment 'production' in /some/config.yml. You may need to run 'rails g rapns' after updating.")
   end
 
   it "should raise an error if the feedback host is not configured" do
     configuration = Rapns::Daemon::Configuration.new("production", "/some/config.yml")
-    config["feedback"]["host"] = nil
+    config["apns"]["feedback"]["host"] = nil
     configuration.stub(:read_config).and_return({"production" => config})
     expect { configuration.load }.to raise_error(Rapns::ConfigurationError, "'feedback.host' not defined for environment 'production' in /some/config.yml. You may need to run 'rails g rapns' after updating.")
   end
 
   it "should raise an error if the feedback port is not configured" do
     configuration = Rapns::Daemon::Configuration.new("production", "/some/config.yml")
-    config["feedback"]["port"] = nil
+    config["apns"]["feedback"]["port"] = nil
     configuration.stub(:read_config).and_return({"production" => config})
     expect { configuration.load }.to raise_error(Rapns::ConfigurationError, "'feedback.port' not defined for environment 'production' in /some/config.yml. You may need to run 'rails g rapns' after updating.")
   end
 
   it "should raise an error if the certificate is not configured" do
     configuration = Rapns::Daemon::Configuration.new("production", "/some/config.yml")
-    configuration.stub(:read_config).and_return({"production" => config.except("certificate")})
+    config["apns"] = config["apns"].except("certificate")
+    configuration.stub(:read_config).and_return({"production" => config})
     expect { configuration.load }.to raise_error(Rapns::ConfigurationError, "'certificate' not defined for environment 'production' in /some/config.yml. You may need to run 'rails g rapns' after updating.")
   end
 
@@ -154,7 +157,7 @@ describe Rapns::Daemon::Configuration do
 
   it "should default the push poll frequency to 2 if not set" do
     configuration = Rapns::Daemon::Configuration.new("production", "/some/config.yml")
-    config["push"]["poll"] = nil
+    config["apns"]["push"]["poll"] = nil
     configuration.stub(:read_config).and_return({"production" => config})
     configuration.load
     configuration.push.poll.should == 2
@@ -162,7 +165,7 @@ describe Rapns::Daemon::Configuration do
 
   it "should default the feedback poll frequency to 60 if not set" do
     configuration = Rapns::Daemon::Configuration.new("production", "/some/config.yml")
-    config["feedback"]["poll"] = nil
+    config["apns"]["feedback"]["poll"] = nil
     configuration.stub(:read_config).and_return({"production" => config})
     configuration.load
     configuration.feedback.poll.should == 60
@@ -177,7 +180,7 @@ describe Rapns::Daemon::Configuration do
 
   it "should default the number of push connections to 3 if not set" do
     configuration = Rapns::Daemon::Configuration.new("production", "/some/config.yml")
-    config["push"]["connections"] = nil
+    config["apns"]["push"]["connections"] = nil
     configuration.stub(:read_config).and_return({"production" => config})
     configuration.load
     configuration.push.connections.should == 3
@@ -192,7 +195,8 @@ describe Rapns::Daemon::Configuration do
 
   it "should set the certificate password to a blank string if it is not configured" do
     configuration = Rapns::Daemon::Configuration.new("production", "/some/config.yml")
-    configuration.stub(:read_config).and_return({"production" => config.except("certificate_password")})
+    config["apns"] = config["apns"].except("certificate_password")
+    configuration.stub(:read_config).and_return({"production" => config})
     configuration.load
     configuration.certificate_password.should == ""
   end
@@ -205,7 +209,7 @@ describe Rapns::Daemon::Configuration do
   end
 
   it "should keep the absolute path of the certificate if it has one" do
-    config["certificate"] = "/different_path/to/production.pem"
+    config["apns"]["certificate"] = "/different_path/to/production.pem"
     configuration = Rapns::Daemon::Configuration.new("production", "/some/config.yml")
     configuration.stub(:read_config).and_return({"production" => config})
     configuration.load

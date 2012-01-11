@@ -4,12 +4,12 @@ describe Rapns::Daemon::Feeder do
   before do
     Rapns::Daemon::Feeder.stub(:sleep)
     Rapns::Daemon::Feeder.stub(:interruptible_sleep)
-    @notification = Rapns::Notification.create!(:device_token => "a" * 64, :os => "ios")
+    @notification = Rapns::NotificationApns.create!(:device_token => "a" * 64)
     @logger = mock("Logger", :info => nil, :error => nil, :warn => nil)
     Rapns::Daemon.stub(:logger).and_return(@logger)
     @queue = mock(:push => nil, :notifications_processed? => true)
     Rapns::Daemon.stub(:delivery_queue).and_return(@queue)
-    Rapns::Daemon.stub(:configuration => mock("Configuration", :push => stub(:poll => 2)))
+    Rapns::Daemon.stub(:configuration => mock("Configuration", :apns => stub(:push => stub(:poll => 2))))
     Rapns::Daemon::Feeder.instance_variable_set("@stop", false)
   end
 

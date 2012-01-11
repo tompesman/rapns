@@ -47,7 +47,7 @@ module Rapns
 
       write_pid_file
 
-      self.delivery_handler_pool = DeliveryHandlerPool.new(configuration.push.connections)
+      self.delivery_handler_pool = DeliveryHandlerPool.new(configuration.apns.push.connections)
       delivery_handler_pool.populate
 
       self.delivery_handler_pool_c2dm = DeliveryHandlerPoolC2dm.new(1)
