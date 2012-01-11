@@ -20,6 +20,12 @@ describe Rapns::Daemon::Configuration do
         "port" => 123,
         "host" => "localhost",
         "poll" => 30,
+      },
+      "c2dm" => {
+        "auth" => "https://www.google.com/accounts/ClientLogin",
+        "push" => "https://android.apis.google.com/c2dm/send",
+        "email" => "email",
+        "password" => "password"
       }
     }
   end

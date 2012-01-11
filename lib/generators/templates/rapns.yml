@@ -13,6 +13,12 @@ development:
     port: 2196
     poll: 60
 
+  c2dm:
+    auth: https://www.google.com/accounts/ClientLogin
+    push: https://android.apis.google.com/c2dm/send
+    email: <enter your email>
+    password: <enter your password>
+
 production:
   certificate: production.pem
   certificate_password:
@@ -29,3 +35,9 @@ production:
     host: feedback.push.apple.com
     port: 2196
     poll: 60
+
+  c2dm:
+    auth: https://www.google.com/accounts/ClientLogin
+    push: https://android.apis.google.com/c2dm/send
+    email: <enter your email>
+    password: <enter your password>

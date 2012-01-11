@@ -5,7 +5,7 @@ module Rapns
 
   module Daemon
     class Configuration
-      attr_accessor :push, :feedback
+      attr_accessor :push, :feedback, :c2dm
       attr_accessor :certificate, :certificate_password, :airbrake_notify, :pid_file
       alias_method  :airbrake_notify?, :airbrake_notify
 
@@ -15,6 +15,7 @@ module Rapns
 
         self.push = Struct.new(:host, :port, :connections, :poll).new
         self.feedback = Struct.new(:host, :port, :poll).new
+        self.c2dm = Struct.new(:auth, :push, :email, :password).new
       end
 
       def load
@@ -34,6 +35,11 @@ module Rapns
         set_variable(nil, :airbrake_notify, config, :optional => true, :default => true)
         set_variable(nil, :certificate_password, config, :optional => true, :default => "")
         set_variable(nil, :pid_file, config, :optional => true, :default => "")
+
+        set_variable(:c2dm, :auth, config)
+        set_variable(:c2dm, :push, config)
+        set_variable(:c2dm, :email, config)
+        set_variable(:c2dm, :password, config)
       end
 
       def certificate
