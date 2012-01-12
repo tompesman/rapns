@@ -16,7 +16,7 @@ module Rapns
         self.apns = Struct.new(:push, :feedback).new
         self.push = Struct.new(:host, :port, :connections, :poll).new
         self.feedback = Struct.new(:host, :port, :poll).new
-        self.c2dm = Struct.new(:auth, :push, :email, :password).new
+        self.c2dm = Struct.new(:auth, :push, :connections, :email, :password).new
       end
 
       def load
@@ -40,6 +40,7 @@ module Rapns
 
         set_variable(:c2dm, :auth, config)
         set_variable(:c2dm, :push, config)
+        set_variable(:c2dm, :connections, config)
         set_variable(:c2dm, :email, config)
         set_variable(:c2dm, :password, config)
 

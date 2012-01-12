@@ -17,8 +17,10 @@ development:
   c2dm:
     auth: https://www.google.com/accounts/ClientLogin
     push: https://android.apis.google.com/c2dm/send
+    connections: 2
     email:
     password:
+
 
 production:
   pid_file: tmp/pids/rapns.pid
@@ -42,5 +44,6 @@ production:
   c2dm:
     auth: https://www.google.com/accounts/ClientLogin
     push: https://android.apis.google.com/c2dm/send
+    connections: 2
     email:
     password:

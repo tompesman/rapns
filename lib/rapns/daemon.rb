@@ -12,9 +12,7 @@ require 'rapns/daemon/connection'
 require 'rapns/daemon/database_reconnectable'
 require 'rapns/daemon/delivery_queue'
 require 'rapns/daemon/delivery_handler'
-require 'rapns/daemon/delivery_handler_c2dm'
 require 'rapns/daemon/delivery_handler_pool'
-require 'rapns/daemon/delivery_handler_pool_c2dm'
 require 'rapns/daemon/feedback_receiver'
 require 'rapns/daemon/feeder'
 require 'rapns/daemon/logger'
@@ -23,8 +21,7 @@ require 'rapns/daemon/c2dm'
 module Rapns
   module Daemon
     class << self
-      attr_accessor :logger, :configuration, :certificate, :delivery_queue,
-       :delivery_queue_c2dm, :delivery_handler_pool, :delivery_handler_pool_c2dm, :foreground
+      attr_accessor :logger, :configuration, :certificate, :delivery_queue, :delivery_handler_pool, :foreground
       alias_method  :foreground?, :foreground
     end
 
@@ -41,17 +38,13 @@ module Rapns
       certificate.load
 
       self.delivery_queue = DeliveryQueue.new
-      self.delivery_queue_c2dm = DeliveryQueue.new
 
       daemonize unless foreground?
 
       write_pid_file
 
-      self.delivery_handler_pool = DeliveryHandlerPool.new(configuration.apns.push.connections)
+      self.delivery_handler_pool = DeliveryHandlerPool.new(configuration.apns.push.connections + configuration.c2dm.connections)
       delivery_handler_pool.populate
-
-      self.delivery_handler_pool_c2dm = DeliveryHandlerPoolC2dm.new(1)
-      delivery_handler_pool_c2dm.populate
 
       logger.info('Ready')
 
