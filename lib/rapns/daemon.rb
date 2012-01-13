@@ -9,6 +9,9 @@ require 'rapns/daemon/delivery_error'
 require 'rapns/daemon/disconnection_error'
 require 'rapns/daemon/pool'
 require 'rapns/daemon/connection'
+require 'rapns/daemon/connection_apns'
+require 'rapns/daemon/connection_c2dm'
+require 'rapns/daemon/connection_pool'
 require 'rapns/daemon/database_reconnectable'
 require 'rapns/daemon/delivery_queue'
 require 'rapns/daemon/delivery_handler'
@@ -16,12 +19,14 @@ require 'rapns/daemon/delivery_handler_pool'
 require 'rapns/daemon/feedback_receiver'
 require 'rapns/daemon/feeder'
 require 'rapns/daemon/logger'
-require 'rapns/daemon/c2dm'
+require 'net/http'
+require 'net/https'
 
 module Rapns
   module Daemon
     class << self
-      attr_accessor :logger, :configuration, :certificate, :delivery_queue, :delivery_handler_pool, :foreground
+      attr_accessor :logger, :configuration, :certificate, :delivery_queue,
+      :connection_pool, :delivery_handler_pool, :foreground
       alias_method  :foreground?, :foreground
     end
 
@@ -43,12 +48,16 @@ module Rapns
 
       write_pid_file
 
+      self.connection_pool = ConnectionPool.new
+      self.connection_pool.populate(configuration.apns.push.connections, ConnectionApns)
+      self.connection_pool.populate(configuration.c2dm.connections, ConnectionC2dm)
+
       self.delivery_handler_pool = DeliveryHandlerPool.new(configuration.apns.push.connections + configuration.c2dm.connections)
       delivery_handler_pool.populate
 
       logger.info('Ready')
 
-      FeedbackReceiver.start
+      FeedbackReceiver.start if configuration.apns.push.connections > 0
       Feeder.start(foreground?)
     end
 

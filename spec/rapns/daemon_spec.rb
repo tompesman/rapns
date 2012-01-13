@@ -79,7 +79,7 @@ describe Rapns::Daemon, "when starting" do
   end
 
   it "should initialize the delivery queue" do
-    Rapns::Daemon::DeliveryQueue.should_receive(:new).twice
+    Rapns::Daemon::DeliveryQueue.should_receive(:new)
     Rapns::Daemon.start("development", {})
   end
 
