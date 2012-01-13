@@ -18,7 +18,7 @@ class RapnsGenerator < Rails::Generators::Base
     end
 
     if !self.class.migration_exists?(migration_dir, 'add_c2dm_to_rapns_notifications.rb')
-      migration_template "add_c2dm_to_rapns_notifications.rb.rb", "db/migrate/add_c2dm_to_rapns_notifications.rb.rb"
+      migration_template "add_c2dm_to_rapns_notifications.rb", "db/migrate/add_c2dm_to_rapns_notifications.rb"
     end
   end
 
