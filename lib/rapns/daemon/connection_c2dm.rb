@@ -3,6 +3,8 @@ module Rapns
     class ConnectionError < StandardError; end
 
     class ConnectionC2dm < Connection
+      attr_reader :response
+
       def initialize(i)
         @name = "ConnectionC2dm #{i}"
         @auth = Rapns::Daemon.configuration.c2dm.auth
@@ -19,32 +21,30 @@ module Rapns
         Rapns::Daemon.logger.info("[#{@name}] Connected to #{@push}")
       end
 
-      def send_notification(options)
-        response = notificationRequest(options)
+      def write(options)
+        @response = notificationRequest(options)
 
         # the response can be one of three codes:
         #   200 (success)
         #   401 (auth failed)
         #   503 (retry later with exponential backoff)
         #   see more documentation here:  http://code.google.com/android/c2dm/#testing
-        if response.code.eql? "200"
+        if @response.code.eql? "200"
 
           # look for the header 'Update-Client-Auth' in the response you get after sending
           # a message. It indicates that this is the token to be used for the next message to send.
-          response.each_header do |key, value|
+          @response.each_header do |key, value|
             @auth_token = value if key == "Update-Client-Auth"
           end
-          return response
 
-        elsif response.code.eql? "401"
+        elsif @response.code.eql? "401"
           # auth failed.  Refresh auth key and requeue
           @auth_token = fetch_auth_token
-          response = notificationRequest(options)
-          return response
+          @response = notificationRequest(options)
 
         elsif response.code.eql? "503"
           # service un-available.
-          return response
+
         end
       end
 

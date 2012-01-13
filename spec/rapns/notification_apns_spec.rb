@@ -101,7 +101,7 @@ describe Rapns::Notification, "as_json" do
   end
 end
 
-describe Rapns::Notification, "to_binary" do
+describe Rapns::Notification, "to_message" do
   it "should correctly convert the notification to binary" do
     notification = Rapns::NotificationApns.new
     notification.device_token = "a" * 64
@@ -112,6 +112,6 @@ describe Rapns::Notification, "to_binary" do
     notification.expiry = 86400 # 1 day, \x00\x01Q\x80
     notification.save!
     notification.stub(:id).and_return(1234)
-    notification.to_binary.should == "\x01\x00\x00\x04\xD2\x00\x01Q\x80\x00 \xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\x00a{\"aps\":{\"alert\":\"Don't panic Mr Mainwaring, don't panic!\",\"badge\":3,\"sound\":\"1.aiff\"},\"hi\":\"mom\"}"
+    notification.to_message.should == "\x01\x00\x00\x04\xD2\x00\x01Q\x80\x00 \xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\x00a{\"aps\":{\"alert\":\"Don't panic Mr Mainwaring, don't panic!\",\"badge\":3,\"sound\":\"1.aiff\"},\"hi\":\"mom\"}"
   end
 end

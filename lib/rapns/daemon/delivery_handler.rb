@@ -35,10 +35,16 @@ module Rapns
         end
 
         begin
-          deliver(notification)
+          if notification.is_a? NotificationApns
+            connection = Rapns::Daemon.connection_pool.checkout(Rapns::Daemon::ConnectionApns)
+          elsif notification.is_a? NotificationC2dm
+            connection = Rapns::Daemon.connection_pool.checkout(Rapns::Daemon::ConnectionC2dm)
+          end
+          notification.deliver(connection)
         rescue StandardError => e
           Rapns::Daemon.logger.error(e)
         ensure
+          Rapns::Daemon.connection_pool.checkin(connection)
           Rapns::Daemon.delivery_queue.notification_processed
         end
       end

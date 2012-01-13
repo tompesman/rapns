@@ -49,7 +49,7 @@ describe Rapns::Daemon::DeliveryHandler do
   end
 
   it "should send the binary version of the notification" do
-    @notification.stub((:to_binary)).and_return("hi mom")
+    @notification.stub((:to_message)).and_return("hi mom")
     @connection.should_receive(:write).with("hi mom")
     delivery_handler.send(:handle_next_notification)
   end

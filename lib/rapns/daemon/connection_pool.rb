@@ -18,8 +18,11 @@ module Rapns
         @mutex.synchronize {@connections << connection}
       end
 
-      def checkout(type)
-        @mutex.synchronize {@connections.each {|c| return c if c.is_a? == type}; nil}
+      def checkout(notification_type)
+        # TODO: if a desired notification_type is not found nil is returned
+        @mutex.synchronize {
+          @connections.each_with_index {|c, i| return @connections.delete_at(i) if c.is_a? notification_type}; nil
+        }
       end
     end
   end

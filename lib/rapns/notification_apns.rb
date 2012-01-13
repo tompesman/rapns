@@ -59,47 +59,19 @@ module Rapns
 
     # This method conforms to the enhanced binary format.
     # http://developer.apple.com/library/ios/#documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingWIthAPS/CommunicatingWIthAPS.html#//apple_ref/doc/uid/TP40008194-CH101-SW4
-    def to_binary(options = {})
+    def to_message(options = {})
       id_for_pack = options[:for_validation] ? 0 : id
       json = as_json.to_json
       [1, id_for_pack, expiry, 0, 32, device_token, 0, json.size, json].pack("cNNccH*cca*")
     end
 
-    def deliver(notification)
-      begin
-        @connection.write(notification.to_binary)
-        check_for_error
+    private
 
-        with_database_reconnect_and_retry do
-          notification.delivered = true
-          notification.delivered_at = Time.now
-          notification.save!(:validate => false)
-        end
-
-        Rapns::Daemon.logger.info("Notification #{notification.id} delivered to #{notification.device_token}")
-      rescue Rapns::DeliveryError, Rapns::DisconnectionError => error
-        handle_delivery_error(notification, error)
-        raise
-      end
-    end
-
-    def handle_delivery_error(notification, error)
-      with_database_reconnect_and_retry do
-        notification.delivered = false
-        notification.delivered_at = nil
-        notification.failed = true
-        notification.failed_at = Time.now
-        notification.error_code = error.code
-        notification.error_description = error.description
-        notification.save!(:validate => false)
-      end
-    end
-
-    def check_for_error
-      if @connection.select(SELECT_TIMEOUT)
+    def check_for_error(connection)
+      if connection.select(SELECT_TIMEOUT)
         error = nil
 
-        if tuple = @connection.read(ERROR_TUPLE_BYTES)
+        if tuple = connection.read(ERROR_TUPLE_BYTES)
           cmd, code, notification_id = tuple.unpack("ccN")
 
           description = APN_ERRORS[code.to_i] || "Unknown error. Possible rapns bug?"
@@ -110,12 +82,11 @@ module Rapns
 
         begin
           Rapns::Daemon.logger.error("[#{@name}] Error received, reconnecting...")
-          @connection.reconnect
+          connection.reconnect
         ensure
           raise error if error
         end
       end
     end
-
   end
 end
