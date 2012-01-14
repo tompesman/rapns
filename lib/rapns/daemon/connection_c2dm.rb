@@ -21,8 +21,8 @@ module Rapns
         Rapns::Daemon.logger.info("[#{@name}] Connected to #{@push}")
       end
 
-      def write(options)
-        @response = notificationRequest(options)
+      def write(data)
+        @response = notificationRequest(data)
 
         # the response can be one of three codes:
         #   200 (success)
@@ -30,7 +30,6 @@ module Rapns
         #   503 (retry later with exponential backoff)
         #   see more documentation here:  http://code.google.com/android/c2dm/#testing
         if @response.code.eql? "200"
-
           # look for the header 'Update-Client-Auth' in the response you get after sending
           # a message. It indicates that this is the token to be used for the next message to send.
           @response.each_header do |key, value|
@@ -40,11 +39,10 @@ module Rapns
         elsif @response.code.eql? "401"
           # auth failed.  Refresh auth key and requeue
           @auth_token = fetch_auth_token
-          @response = notificationRequest(options)
+          @response = notificationRequest(data)
 
         elsif response.code.eql? "503"
           # service un-available.
-
         end
       end
 
@@ -66,23 +64,12 @@ module Rapns
         return response.body[/Auth=(.*)/, 1]
       end
 
-      def notificationRequest(options)
-        data = {}
-        options.each do |key, value|
-          if [:registration_id, "registration_id", :collapse_key, "collapse_key"].include? key
-            data[key] = value
-          else
-            data["data.#{key}"] = value
-          end
-        end
-
-        data = data.map{|k, v| "&#{k}=#{URI.escape(v.to_s)}"}.reduce{|k, v| k + v}
+      def notificationRequest(data)
         headers = { "Authorization" => "GoogleLogin auth=#{@auth_token}",
                    "Content-type" => "application/x-www-form-urlencoded",
                    "Content-length" => "#{data.length}" }
         uri = URI.parse(@push)
-        http = open_http(uri.host, uri.port)
-        http.post(uri.path, data, headers)
+        @connection.post(uri.path, data, headers)
       end
     end
   end
