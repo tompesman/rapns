@@ -35,11 +35,7 @@ module Rapns
         end
 
         begin
-          if notification.is_a? NotificationApns
-            connection = Rapns::Daemon.connection_pool.checkout(Rapns::Daemon::ConnectionApns)
-          elsif notification.is_a? NotificationC2dm
-            connection = Rapns::Daemon.connection_pool.checkout(Rapns::Daemon::ConnectionC2dm)
-          end
+          connection = Rapns::Daemon.connection_pool.checkout(notification.use_connection)
           notification.deliver(connection)
         rescue StandardError => e
           Rapns::Daemon.logger.error(e)

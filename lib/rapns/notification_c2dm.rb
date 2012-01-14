@@ -19,5 +19,9 @@ module Rapns
         :collapse_key => collapse_key
       }
     end
+
+    def use_connection
+      Rapns::Daemon::ConnectionC2dm
+    end
   end
 end

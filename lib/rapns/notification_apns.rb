@@ -64,6 +64,10 @@ module Rapns
       json = as_json.to_json
       [1, id_for_pack, expiry, 0, 32, device_token, 0, json.size, json].pack("cNNccH*cca*")
     end
+    
+    def use_connection
+      Rapns::Daemon::ConnectionApns
+    end
 
     private
 
