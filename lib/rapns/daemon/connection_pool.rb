@@ -8,7 +8,7 @@ module Rapns
 
       def populate(number, type)
         number.times do |i|
-          c = type.new(i)
+          c = type.new(i+1)
           c.connect
           checkin(c)
         end
