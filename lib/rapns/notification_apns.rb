@@ -79,13 +79,13 @@ module Rapns
           cmd, code, notification_id = tuple.unpack("ccN")
 
           description = APN_ERRORS[code.to_i] || "Unknown error. Possible rapns bug?"
-          error = Rapns::DeliveryError.new(code, notification_id, description)
+          error = Rapns::DeliveryError.new(code, notification_id, description, "APNS")
         else
           error = Rapns::DisconnectionError.new
         end
 
         begin
-          Rapns::Daemon.logger.error("[#{@name}] Error received, reconnecting...")
+          Rapns::Daemon.logger.error("[#{connection.name}] Error received, reconnecting...")
           connection.reconnect
         ensure
           raise error if error

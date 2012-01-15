@@ -4,9 +4,14 @@ module Rapns
 
     def check_for_error(connection)
       response = connection.response
-      unless response.code.eql? "200"
-        error = Rapns::DeliveryError.new(response.code, id, response.description)
-        Rapns::Daemon.logger.error("[#{@name}] Error received, reconnecting...")
+
+      if response.code.eql? "200" and response.body[/Error=(.*)/, 1]
+        error = Rapns::DeliveryError.new(response.code, id, response.body[/Error=(.*)/, 1], "C2DM")
+        Rapns::Daemon.logger.error("[#{connection.name}] Error received, reconnecting...")
+        raise error if error
+      elsif !response.code.eql? "200"
+        error = Rapns::DeliveryError.new(response.code, id, response.description, "C2DM")
+        Rapns::Daemon.logger.error("[#{connection.name}] Error received, reconnecting...")
         raise error if error
       end
     end

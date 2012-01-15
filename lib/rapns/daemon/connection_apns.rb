@@ -3,6 +3,8 @@ module Rapns
     class ConnectionError < StandardError; end
 
     class ConnectionApns < Connection
+      attr_reader :name
+
       def initialize(i=nil)
         if i
           # Apns push connection
