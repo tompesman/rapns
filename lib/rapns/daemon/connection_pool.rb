@@ -2,11 +2,11 @@ module Rapns
   module Daemon
     class ConnectionPool
       def initialize()
-        @connections = []
-        @mutex = Mutex.new
+        @connections = Hash.new
       end
 
       def populate(number, type)
+        @connections[type.to_s] = Queue.new
         number.times do |i|
           c = type.new(i+1)
           c.connect
@@ -15,14 +15,11 @@ module Rapns
       end
 
       def checkin(connection)
-        @mutex.synchronize {@connections << connection}
+        @connections[connection.class.to_s].push(connection)
       end
 
       def checkout(notification_type)
-        # TODO: if a desired notification_type is not found nil is returned
-        @mutex.synchronize {
-          @connections.each_with_index {|c, i| return @connections.delete_at(i) if c.is_a? notification_type}; nil
-        }
+        @connections[notification_type.to_s].pop
       end
     end
   end
