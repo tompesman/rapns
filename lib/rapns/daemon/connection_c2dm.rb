@@ -3,7 +3,7 @@ module Rapns
     class ConnectionError < StandardError; end
 
     class ConnectionC2dm < Connection
-      attr_reader :response
+      attr_reader :response, :name
 
       def initialize(i)
         @name = "ConnectionC2dm #{i}"
