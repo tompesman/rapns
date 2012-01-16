@@ -10,7 +10,7 @@ module Rapns
     end
 
     def message
-      "Unable to deliver notification #{@notification_id}, received #{source} error #{@code} (#{@description})"
+      "Unable to deliver notification #{@notification_id}, received #{@source} error #{@code} (#{@description})"
     end
   end
 end
