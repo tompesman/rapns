@@ -15,6 +15,7 @@ module Rapns
 
       def connect
         @auth_token = fetch_auth_token
+        @last_use = Time.now
         uri = URI.parse(@push)
         @connection = open_http(uri.host, uri.port)
         @connection.start
@@ -32,8 +33,10 @@ module Rapns
         if @response.code.eql? "200"
           # look for the header 'Update-Client-Auth' in the response you get after sending
           # a message. It indicates that this is the token to be used for the next message to send.
-          @response.each_header do |key, value|
-            @auth_token = value if key == "Update-Client-Auth"
+          @response.header.each_header do |key, value|
+            if key == "Update-Client-Auth"
+              @auth_token = value
+            end
           end
 
         elsif @response.code.eql? "401"
@@ -69,6 +72,14 @@ module Rapns
                    "Content-type" => "application/x-www-form-urlencoded",
                    "Content-length" => "#{data.length}" }
         uri = URI.parse(@push)
+
+        # Timeout on the http connection is 5 minutes, reconnect after 5 minutes
+        if @last_use + 5.minutes < Time.now
+          @connection.finish
+          @connection.start
+        end
+        @last_use = Time.now
+
         @connection.post(uri.path, data, headers)
       end
     end
