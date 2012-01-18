@@ -8,7 +8,7 @@ module Rapns
 
     validates :device_token, :presence => true
 
-    scope :ready_for_delivery, lambda { where(:delivered => false, :failed => false).merge(where("deliver_after IS NULL") | where("deliver_after < ?", Time.now)) }
+    scope :ready_for_delivery, lambda { where('delivered = ? AND failed = ? AND (deliver_after IS NULL OR deliver_after < ?)', false, false, Time.now) }
 
     def deliver(connection)
       begin
