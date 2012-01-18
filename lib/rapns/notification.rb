@@ -1,6 +1,9 @@
+require 'active_record'
+require 'active_record/errors'
+require 'rapns/daemon/database_reconnectable'
 module Rapns
   class Notification < ActiveRecord::Base
-    #include Rapns::Daemon::DatabaseReconnectable
+    include Rapns::Daemon::DatabaseReconnectable
     set_table_name "rapns_notifications"
 
     validates :device_token, :presence => true
@@ -13,11 +16,11 @@ module Rapns
         check_for_error(connection)
 
         # this code makes no sense in the rails environment, but it does in the daemon
-        #with_database_reconnect_and_retry do
+        with_database_reconnect_and_retry do
           self.delivered = true
           self.delivered_at = Time.now
           self.save!(:validate => false)
-        #end
+        end
 
         Rapns::Daemon.logger.info("Notification #{id} delivered to #{device_token}")
       rescue Rapns::DeliveryError, Rapns::DisconnectionError => error
@@ -30,7 +33,7 @@ module Rapns
 
     def handle_delivery_error(error)
       # this code makes no sense in the rails environment, but it does in the daemon
-      #with_database_reconnect_and_retry do
+      with_database_reconnect_and_retry do
         self.delivered = false
         self.delivered_at = nil
         self.failed = true
@@ -38,7 +41,7 @@ module Rapns
         self.error_code = error.code
         self.error_description = error.description
         self.save!(:validate => false)
-      #end
+      end
     end
   end
 end
