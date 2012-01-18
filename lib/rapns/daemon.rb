@@ -1,6 +1,8 @@
 require 'thread'
 require 'socket'
 require 'pathname'
+require 'net/http'
+require 'net/https'
 
 require 'rapns/daemon/interruptible_sleep'
 require 'rapns/daemon/configuration'
@@ -19,8 +21,6 @@ require 'rapns/daemon/delivery_handler_pool'
 require 'rapns/daemon/feedback_receiver'
 require 'rapns/daemon/feeder'
 require 'rapns/daemon/logger'
-require 'net/http'
-require 'net/https'
 
 module Rapns
   module Daemon
