@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe Rapns::Daemon::Connection, "when setting up the SSL context" do
+describe Rapns::Daemon::ConnectionApns, "when setting up the SSL context" do
   before do
     @ssl_context = mock("SSLContext", :key= => nil, :cert= => nil)
     OpenSSL::SSL::SSLContext.should_receive(:new).and_return(@ssl_context)
@@ -10,11 +10,11 @@ describe Rapns::Daemon::Connection, "when setting up the SSL context" do
     Rapns::Daemon.stub(:certificate).and_return(@certificate)
     @x509_certificate = mock("X509 Certificate")
     OpenSSL::X509::Certificate.stub(:new).and_return(@x509_certificate)
-    @connection = Rapns::Daemon::Connection.new('Connection 0', 'gateway.push.apple.com', 2195)
+    configuration = mock("Configuration", :apns => stub(:certificate_password => "abc123", :push => stub(:host => "gateway.push.apple.com", :port => 2195)))
+    Rapns::Daemon.stub(:configuration).and_return(configuration)
+    @connection = Rapns::Daemon::ConnectionApns.new(0)
     @connection.stub(:connect_socket)
     @connection.stub(:setup_at_exit_hook)
-    configuration = mock("Configuration", :certificate_password => "abc123")
-    Rapns::Daemon.stub(:configuration).and_return(configuration)
   end
 
   it "should set the key on the context" do
@@ -30,9 +30,11 @@ describe Rapns::Daemon::Connection, "when setting up the SSL context" do
   end
 end
 
-describe Rapns::Daemon::Connection, "when connecting the socket" do
+describe Rapns::Daemon::ConnectionApns, "when connecting the socket" do
   before do
-    @connection = Rapns::Daemon::Connection.new('Connection 0', 'gateway.push.apple.com', 2195)
+    configuration = mock("Configuration", :apns => stub(:certificate_password => "abc123", :push => stub(:host => "gateway.push.apple.com", :port => 2195)))
+    Rapns::Daemon.stub(:configuration).and_return(configuration)
+    @connection = Rapns::Daemon::ConnectionApns.new(0)
     @connection.stub(:setup_at_exit_hook)
     @ssl_context = mock("SSLContext")
     @connection.stub(:setup_ssl_context).and_return(@ssl_context)
@@ -75,9 +77,11 @@ describe Rapns::Daemon::Connection, "when connecting the socket" do
   end
 end
 
-describe Rapns::Daemon::Connection, "when shuting down the connection" do
+describe Rapns::Daemon::ConnectionApns, "when shuting down the connection" do
   before do
-    @connection = Rapns::Daemon::Connection.new('Connection 0', 'gateway.push.apple.com', 2195)
+    configuration = mock("Configuration", :apns => stub(:certificate_password => "abc123", :push => stub(:host => "gateway.push.apple.com", :port => 2195)))
+    Rapns::Daemon.stub(:configuration).and_return(configuration)
+    @connection = Rapns::Daemon::ConnectionApns.new(0)
     @connection.stub(:setup_ssl_context)
     @ssl_socket = mock("SSLSocket", :close => nil)
     @tcp_socket = mock("TCPSocket", :close => nil)
@@ -119,7 +123,9 @@ end
 
 describe Rapns::Daemon::Connection, "read" do
   before do
-    @connection = Rapns::Daemon::Connection.new('Connection 0', 'gateway.push.apple.com', 2195)
+    configuration = mock("Configuration", :apns => stub(:certificate_password => "abc123", :push => stub(:host => "gateway.push.apple.com", :port => 2195)))
+    Rapns::Daemon.stub(:configuration).and_return(configuration)
+    @connection = Rapns::Daemon::ConnectionApns.new(0)
     @connection.stub(:setup_ssl_context)
     @ssl_socket = mock("SSLSocket", :close => nil)
     @tcp_socket = mock("TCPSocket", :close => nil)
@@ -135,7 +141,9 @@ end
 
 describe Rapns::Daemon::Connection, "select" do
   before do
-    @connection = Rapns::Daemon::Connection.new('Connection 0', 'gateway.push.apple.com', 2195)
+    configuration = mock("Configuration", :apns => stub(:certificate_password => "abc123", :push => stub(:host => "gateway.push.apple.com", :port => 2195)))
+    Rapns::Daemon.stub(:configuration).and_return(configuration)
+    @connection = Rapns::Daemon::ConnectionApns.new(0)
     @connection.stub(:setup_ssl_context)
     @ssl_socket = mock("SSLSocket", :close => nil)
     @tcp_socket = mock("TCPSocket", :close => nil)
@@ -151,7 +159,9 @@ end
 
 shared_examples_for "when the write fails" do
   before do
-    @connection = Rapns::Daemon::Connection.new('Connection 0', 'gateway.push.apple.com', 2195)
+    configuration = mock("Configuration", :apns => stub(:certificate_password => "abc123", :push => stub(:host => "gateway.push.apple.com", :port => 2195)))
+    Rapns::Daemon.stub(:configuration).and_return(configuration)
+    @connection = Rapns::Daemon::ConnectionApns.new(0)
     @logger = mock("Logger", :error => nil)
     Rapns::Daemon.stub(:logger).and_return(@logger)
     @connection.stub(:reconnect)
@@ -160,7 +170,7 @@ shared_examples_for "when the write fails" do
   end
 
   it "should log that the connection has been lost once only" do
-    Rapns::Daemon.logger.should_receive(:error).with("[Connection 0] Lost connection to gateway.push.apple.com:2195 (#{error_type.name}), reconnecting...").once
+    Rapns::Daemon.logger.should_receive(:error).with("[ConnectionApns 0] Lost connection to gateway.push.apple.com:2195 (#{error_type.name}), reconnecting...").once
     begin
       @connection.write(nil)
     rescue Rapns::Daemon::ConnectionError
@@ -178,7 +188,7 @@ shared_examples_for "when the write fails" do
   it "should raise a ConnectionError after 3 attempts at reconnecting" do
     expect do
       @connection.write(nil)
-    end.to raise_error(Rapns::Daemon::ConnectionError, "Connection 0 tried 3 times to reconnect but failed (#{error_type.name}).")
+    end.to raise_error(Rapns::Daemon::ConnectionError, "ConnectionApns 0 tried 3 times to reconnect but failed (#{error_type.name}).")
   end
 
   it "should sleep 1 second before retrying the connection" do
@@ -190,7 +200,7 @@ shared_examples_for "when the write fails" do
   end
 end
 
-describe Rapns::Daemon::Connection, "when write raises an Errno::EPIPE" do
+describe Rapns::Daemon::ConnectionApns, "when write raises an Errno::EPIPE" do
   it_should_behave_like "when the write fails"
 
   def error_type
@@ -198,7 +208,7 @@ describe Rapns::Daemon::Connection, "when write raises an Errno::EPIPE" do
   end
 end
 
-describe Rapns::Daemon::Connection, "when write raises an Errno::ETIMEDOUT" do
+describe Rapns::Daemon::ConnectionApns, "when write raises an Errno::ETIMEDOUT" do
   it_should_behave_like "when the write fails"
 
   def error_type
@@ -206,7 +216,7 @@ describe Rapns::Daemon::Connection, "when write raises an Errno::ETIMEDOUT" do
   end
 end
 
-describe Rapns::Daemon::Connection, "when write raises an OpenSSL::SSL::SSLError" do
+describe Rapns::Daemon::ConnectionApns, "when write raises an OpenSSL::SSL::SSLError" do
   it_should_behave_like "when the write fails"
 
   def error_type
@@ -214,9 +224,11 @@ describe Rapns::Daemon::Connection, "when write raises an OpenSSL::SSL::SSLError
   end
 end
 
-describe Rapns::Daemon::Connection, "when reconnecting" do
+describe Rapns::Daemon::ConnectionApns, "when reconnecting" do
   before do
-    @connection = Rapns::Daemon::Connection.new('Connection 0', 'gateway.push.apple.com', 2195)
+    configuration = mock("Configuration", :apns => stub(:certificate_password => "abc123", :push => stub(:host => "gateway.push.apple.com", :port => 2195)))
+    Rapns::Daemon.stub(:configuration).and_return(configuration)
+    @connection = Rapns::Daemon::ConnectionApns.new(0)
     @connection.stub(:close)
     @connection.stub(:connect_socket)
   end
@@ -234,7 +246,9 @@ end
 
 describe Rapns::Daemon::Connection, "when sending a notification" do
   before do
-    @connection = Rapns::Daemon::Connection.new('Connection 0', 'gateway.push.apple.com', 2195)
+    configuration = mock("Configuration", :apns => stub(:certificate_password => "abc123", :push => stub(:host => "gateway.push.apple.com", :port => 2195)))
+    Rapns::Daemon.stub(:configuration).and_return(configuration)
+    @connection = Rapns::Daemon::ConnectionApns.new(0)
     @ssl_socket = mock("SSLSocket", :write => nil, :flush => nil, :close => nil)
     @tcp_socket = mock("TCPSocket", :close => nil)
     @connection.stub(:setup_ssl_context)

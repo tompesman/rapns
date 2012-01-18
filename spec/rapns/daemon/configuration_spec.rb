@@ -27,7 +27,8 @@ describe Rapns::Daemon::Configuration do
         "auth" => "https://www.google.com/accounts/ClientLogin",
         "push" => "https://android.apis.google.com/c2dm/send",
         "email" => "email",
-        "password" => "password"
+        "password" => "password",
+        "connections" => 2
       }
     }
   end

@@ -25,7 +25,7 @@ describe Rapns::Daemon::FeedbackReceiver, 'check_for_feedback' do
   end
 
   it 'instantiates a new connection' do
-    Rapns::Daemon::Connection.should_receive(:new).with("FeedbackReceiver", 'feedback.push.apple.com', 2196)
+    Rapns::Daemon::Connection.should_receive(:new).with()
     Rapns::Daemon::FeedbackReceiver.check_for_feedback
   end
 

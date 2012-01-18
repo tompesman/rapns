@@ -27,7 +27,8 @@ describe Rapns::Daemon, "when starting" do
         "auth" => "https://www.google.com/accounts/ClientLogin",
         "push" => "https://android.apis.google.com/c2dm/send",
         "email" => "email",
-        "password" => "password"
+        "password" => "password",
+        "connections" => 2
       }
     }
   end
@@ -42,6 +43,9 @@ describe Rapns::Daemon, "when starting" do
     @certificate = Rapns::Daemon::Certificate.new("/rails_root/config/rapns/development.pem")
     @certificate.stub(:read_certificate).and_return("certificate contents")
     Rapns::Daemon::Certificate.stub(:new).and_return(@certificate)
+
+    @connection_pool = mock("ConnectionPool", :populate => nil, :checkin => nil, :checkout => nil)
+    Rapns::Daemon::ConnectionPool.stub(:new).and_return(@connection_pool)
 
     @handler_pool = Rapns::Daemon::DeliveryHandlerPool.new(3)
     @handler_pool.stub(:populate)
@@ -84,7 +88,7 @@ describe Rapns::Daemon, "when starting" do
   end
 
   it "should populate the delivery handler pool" do
-    Rapns::Daemon::DeliveryHandlerPool.should_receive(:new).with(3).and_return(@handler_pool)
+    Rapns::Daemon::DeliveryHandlerPool.should_receive(:new).with(5).and_return(@handler_pool)
     @handler_pool.should_receive(:populate)
     Rapns::Daemon.start("development", {})
   end
