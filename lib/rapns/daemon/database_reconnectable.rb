@@ -12,12 +12,12 @@ module Rapns
           yield
         rescue *ADAPTER_ERRORS => e
           Rapns::Daemon.logger.error(e)
-          database_connection_lost
+          database_connection_lost(name)
           retry
         end
       end
 
-      def database_connection_lost
+      def database_connection_lost(name)
         Rapns::Daemon.logger.warn("[#{name}] Lost connection to database, reconnecting...")
         attempts = 0
         loop do

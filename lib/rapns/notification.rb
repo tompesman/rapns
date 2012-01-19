@@ -17,6 +17,7 @@ module Rapns
 
         # this code makes no sense in the rails environment, but it does in the daemon
         with_database_reconnect_and_retry do
+          name = connection.name
           self.delivered = true
           self.delivered_at = Time.now
           self.save!(:validate => false)
