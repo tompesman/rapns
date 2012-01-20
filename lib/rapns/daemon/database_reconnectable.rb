@@ -7,7 +7,7 @@ module Rapns
     module DatabaseReconnectable
       ADAPTER_ERRORS = [ActiveRecord::StatementInvalid, PGError, Mysql::Error, Mysql2::Error]
 
-      def with_database_reconnect_and_retry
+      def with_database_reconnect_and_retry(name)
         begin
           yield
         rescue *ADAPTER_ERRORS => e

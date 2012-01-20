@@ -14,7 +14,7 @@ describe Rapns::Daemon::DatabaseReconnectable do
     end
 
     def perform
-      with_database_reconnect_and_retry do
+      with_database_reconnect_and_retry(name) do
         @calls += 1
         raise @error if @calls <= @max_calls
       end

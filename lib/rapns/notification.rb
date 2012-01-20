@@ -16,8 +16,7 @@ module Rapns
         check_for_error(connection)
 
         # this code makes no sense in the rails environment, but it does in the daemon
-        with_database_reconnect_and_retry do
-          name = connection.name
+        with_database_reconnect_and_retry(connection.name) do
           self.delivered = true
           self.delivered_at = Time.now
           self.save!(:validate => false)
@@ -25,16 +24,16 @@ module Rapns
 
         Rapns::Daemon.logger.info("Notification #{id} delivered to #{device_token}")
       rescue Rapns::DeliveryError, Rapns::DisconnectionError => error
-        handle_delivery_error(error)
+        handle_delivery_error(error, connection)
         raise
       end
     end
 
     private
 
-    def handle_delivery_error(error)
+    def handle_delivery_error(error, connection)
       # this code makes no sense in the rails environment, but it does in the daemon
-      with_database_reconnect_and_retry do
+      with_database_reconnect_and_retry(connection.name) do
         self.delivered = false
         self.delivered_at = nil
         self.failed = true

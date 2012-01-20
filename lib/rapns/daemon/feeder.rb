@@ -27,7 +27,7 @@ module Rapns
 
       def self.enqueue_notifications
         begin
-          with_database_reconnect_and_retry do
+          with_database_reconnect_and_retry(name) do
             if Rapns::Daemon.delivery_queue.notifications_processed?
               Rapns::Notification.ready_for_delivery.each do |notification|
                 Rapns::Daemon.delivery_queue.push(notification)
