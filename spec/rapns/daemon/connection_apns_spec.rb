@@ -10,7 +10,7 @@ describe Rapns::Daemon::ConnectionApns, "when setting up the SSL context" do
     Rapns::Daemon.stub(:certificate).and_return(@certificate)
     @x509_certificate = mock("X509 Certificate")
     OpenSSL::X509::Certificate.stub(:new).and_return(@x509_certificate)
-    configuration = mock("Configuration", :apns => stub(:certificate_password => "abc123", :push => stub(:host => "gateway.push.apple.com", :port => 2195)))
+    configuration = mock("Configuration", :certificate_password => "abc123", :apns => stub( :push => stub(:host => "gateway.push.apple.com", :port => 2195)))
     Rapns::Daemon.stub(:configuration).and_return(configuration)
     @connection = Rapns::Daemon::ConnectionApns.new(0)
     @connection.stub(:connect_socket)
