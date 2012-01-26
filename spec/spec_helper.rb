@@ -29,6 +29,7 @@ AddC2dmToRapnsNotifications.up
 require 'bundler'
 Bundler.require(:default)
 
+require 'webmock/rspec'
 require 'shoulda'
 require 'database_cleaner'
 
