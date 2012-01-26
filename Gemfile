@@ -11,4 +11,11 @@ gem 'database_cleaner'
 gem 'simplecov'
 #gem 'perftools.rb'
 
+group :development do
+  gem 'guard'
+  gem 'guard-rspec'
+  gem 'growl'
+  gem 'webmock'
+end
+
 gemspec
