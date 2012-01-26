@@ -16,24 +16,18 @@ module Rapns
       end
     end
 
+    def as_hash
+      json = ActiveSupport::OrderedHash.new
+      json['registration_id'] = device_token
+      json['collapse_key'] = collapse_key
+      json['delay_when_idle'] = "1" if delay_when_idle == true
+      json['data.message'] = alert if alert
+      attributes_for_device.each { |k, v| json["data.#{k.to_s}"] = v.to_s } if attributes_for_device
+      json
+    end
+
     def to_message
-      data = {}
-      options = {
-        :registration_id => device_token,
-        :message => alert,
-        :extra_data => attributes_for_device,
-        :collapse_key => collapse_key
-      }
-
-      options.each do |key, value|
-        if [:registration_id, :collapse_key].include? key
-          data[key] = value
-        else
-          data["data.#{key}"] = value
-        end
-      end
-
-      data.map{|k, v| "&#{k}=#{URI.escape(v.to_s)}"}.reduce{|k, v| k + v}
+      as_hash.map{|k, v| "&#{k}=#{URI.escape(v.to_s)}"}.reduce{|k, v| k + v}
     end
 
     def use_connection

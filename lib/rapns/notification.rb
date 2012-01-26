@@ -10,6 +10,15 @@ module Rapns
 
     scope :ready_for_delivery, lambda { where('delivered = ? AND failed = ? AND (deliver_after IS NULL OR deliver_after < ?)', false, false, Time.now) }
 
+    def attributes_for_device=(attrs)
+      raise ArgumentError, "attributes_for_device must be a Hash" if !attrs.is_a?(Hash)
+      write_attribute(:attributes_for_device, ActiveSupport::JSON.encode(attrs))
+    end
+
+    def attributes_for_device
+      ActiveSupport::JSON.decode(read_attribute(:attributes_for_device)) if read_attribute(:attributes_for_device)
+    end
+
     def deliver(connection)
       begin
         connection.write(self.to_message)

@@ -38,15 +38,6 @@ module Rapns
       ActiveSupport::JSON.decode(string_or_json) rescue string_or_json
     end
 
-    def attributes_for_device=(attrs)
-      raise ArgumentError, "attributes_for_device must be a Hash" if !attrs.is_a?(Hash)
-      write_attribute(:attributes_for_device, ActiveSupport::JSON.encode(attrs))
-    end
-
-    def attributes_for_device
-      ActiveSupport::JSON.decode(read_attribute(:attributes_for_device)) if read_attribute(:attributes_for_device)
-    end
-
     def as_json
       json = ActiveSupport::OrderedHash.new
       json['aps'] = ActiveSupport::OrderedHash.new
