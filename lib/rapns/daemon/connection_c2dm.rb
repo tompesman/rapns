@@ -34,7 +34,8 @@ module Rapns
           # look for the header 'Update-Client-Auth' in the response you get after sending
           # a message. It indicates that this is the token to be used for the next message to send.
           @response.header.each_header do |key, value|
-            if key == "Update-Client-Auth"
+            if key.capitalize == "Update-Client-Auth".capitalize
+              Rapns::Daemon.logger.info("[#{@name}] Received new authentication token")
               @auth_token = value
             end
           end
