@@ -4,7 +4,7 @@ require 'rapns/daemon/database_reconnectable'
 module Rapns
   class Notification < ActiveRecord::Base
     include Rapns::Daemon::DatabaseReconnectable
-    set_table_name "rapns_notifications"
+    self.table_name = "rapns_notifications"
 
     validates :device_token, :presence => true
 
