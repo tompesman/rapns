@@ -115,3 +115,16 @@ describe Rapns::Notification, "to_message" do
     notification.to_message.should == "\x01\x00\x00\x04\xD2\x00\x01Q\x80\x00 \xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\x00a{\"aps\":{\"alert\":\"Don't panic Mr Mainwaring, don't panic!\",\"badge\":3,\"sound\":\"1.aiff\"},\"hi\":\"mom\"}"
   end
 end
+
+describe Rapns::Notification, "payload size limitation" do
+  it "should limit payload size to 256 bytes but not the entire packet" do
+    notification = Rapns::NotificationApns.new do |n|
+      n.device_token = "a" * 64
+      n.alert = "a" * 210
+    end
+
+    notification.to_message(:for_validation => true).size.should > 256
+    notification.payload_size.should < 256
+    notification.should be_valid
+  end
+end
