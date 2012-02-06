@@ -8,13 +8,15 @@ module Rapns
       ADAPTER_ERRORS = [ActiveRecord::StatementInvalid, PGError, Mysql::Error, Mysql2::Error]
 
       def with_database_reconnect_and_retry(name)
-        begin
-          yield
-        rescue *ADAPTER_ERRORS => e
-          Rapns::Daemon.logger.error(e)
-          database_connection_lost(name)
-          retry
-        end
+        ActiveRecord::Base.connection_pool.with_connection {
+          begin
+            yield
+          rescue *ADAPTER_ERRORS => e
+            Rapns::Daemon.logger.error(e)
+            database_connection_lost(name)
+            retry
+          end
+        }
       end
 
       def database_connection_lost(name)
