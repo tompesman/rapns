@@ -3,6 +3,7 @@ source 'http://rubygems.org'
 gem 'rake'
 gem 'rspec'
 gem 'shoulda'
+gem "multi_json"
 gem 'activerecord', :require => 'active_record'
 gem 'pg'
 gem 'mysql2'

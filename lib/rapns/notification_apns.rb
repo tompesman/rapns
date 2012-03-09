@@ -27,7 +27,7 @@ module Rapns
 
     def alert=(alert)
       if alert.is_a?(Hash)
-        write_attribute(:alert, ActiveSupport::JSON.encode(alert))
+        write_attribute(:alert, MultiJson.encode(alert))
       else
         write_attribute(:alert, alert)
       end
@@ -35,7 +35,7 @@ module Rapns
 
     def alert
       string_or_json = read_attribute(:alert)
-      ActiveSupport::JSON.decode(string_or_json) rescue string_or_json
+      MultiJson.decode(string_or_json) rescue string_or_json
     end
 
     def as_json
@@ -60,7 +60,7 @@ module Rapns
     end
 
     def payload
-      as_json.to_json
+      MultiJson.encode(as_json)
     end
 
     def payload_size
