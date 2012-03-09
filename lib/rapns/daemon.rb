@@ -39,6 +39,8 @@ module Rapns
 
       self.logger = Logger.new(:foreground => foreground, :airbrake_notify => configuration.airbrake_notify)
 
+      rescale_poolsize
+
       self.certificate = Certificate.new(configuration.certificate)
       certificate.load
 
@@ -62,6 +64,16 @@ module Rapns
     end
 
     protected
+
+    def self.rescale_poolsize
+      # 2 (1 feeder + 1 feedback + apns + c2dm)
+      size = 2 + Rapns::Daemon.configuration.apns.push.connections + Rapns::Daemon.configuration.c2dm.connections
+
+      h = ActiveRecord::Base.connection_config
+      h[:pool] = size
+      ActiveRecord::Base.establish_connection(h)
+      logger.info("[Daemon] Rescaled ActiveRecord ConnectionPool size to #{size}")
+    end
 
     def self.setup_signal_hooks
       @shutting_down = false
