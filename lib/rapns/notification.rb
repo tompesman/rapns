@@ -12,11 +12,11 @@ module Rapns
 
     def attributes_for_device=(attrs)
       raise ArgumentError, "attributes_for_device must be a Hash" if !attrs.is_a?(Hash)
-      write_attribute(:attributes_for_device, MultiJson.encode(attrs))
+      write_attribute(:attributes_for_device, MultiJson.dump(attrs))
     end
 
     def attributes_for_device
-      MultiJson.decode(read_attribute(:attributes_for_device)) if read_attribute(:attributes_for_device)
+      MultiJson.load(read_attribute(:attributes_for_device)) if read_attribute(:attributes_for_device)
     end
 
     def deliver(connection)

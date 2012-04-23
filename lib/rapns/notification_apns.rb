@@ -27,7 +27,7 @@ module Rapns
 
     def alert=(alert)
       if alert.is_a?(Hash)
-        write_attribute(:alert, MultiJson.encode(alert))
+        write_attribute(:alert, MultiJson.dump(alert))
       else
         write_attribute(:alert, alert)
       end
@@ -35,7 +35,7 @@ module Rapns
 
     def alert
       string_or_json = read_attribute(:alert)
-      MultiJson.decode(string_or_json) rescue string_or_json
+      MultiJson.load(string_or_json) rescue string_or_json
     end
 
     def as_json
@@ -54,13 +54,13 @@ module Rapns
       id_for_pack = options[:for_validation] ? 0 : id
       [1, id_for_pack, expiry, 0, 32, device_token, 0, payload_size, payload].pack("cNNccH*cca*")
     end
-    
+
     def use_connection
       Rapns::Daemon::ConnectionApns
     end
 
     def payload
-      MultiJson.encode(as_json)
+      MultiJson.dump(as_json)
     end
 
     def payload_size
