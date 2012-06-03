@@ -23,6 +23,6 @@ end
 ENV['RAILS_ENV'] = environment
 load 'config/environment.rb'
 
-require 'rapns/patches'
+#require 'rapns/patches'
 
 Rapns::Daemon.start(environment, foreground)
